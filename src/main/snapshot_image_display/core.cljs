@@ -15,16 +15,12 @@
 
 ;; API stuff
 (defn build-img-data []
-  (let [results (:results (:api-response @state))
-        tags (map :tags results)
-        landing_pages (filter #(= "landing_page" (:type (first %))) tags)
-        ids (map #(get-in (first %) [:source :cover_photo :id]) landing_pages)
-        small-urls (map #(get-in (first %) [:source :cover_photo :urls :small]) landing_pages)
-        img-data (zipmap ids small-urls)]
+  (let [results (:hits (:api-response @state))
+        img-data (into {} (map (fn [e] [(:id e) (:largeImageURL e)]) results))]
     (swap! state assoc :img-data img-data)))
 
 (defn get-api-response [search-term]
-  (let [url (str "https://api.unsplash.com/search/collections/?client_id=" (:access-key @state) "&per_page=200&query=" search-term)]
+  (let [url (str "https://pixabay.com/api/?key=" (:access-key @state) "&per_page=24&image_type=photo&q=" search-term)]
     (->
       (.fetch js/window url)
       (.then (fn [e] (.json e)))
@@ -85,7 +81,7 @@
           [:div.section.modal {:id (str "modal-" key)}
            [:div.modal-background]
            [:div.modal-content
-            [:p.image.is-4by3
+            [:p.image.is-16by9
              [:img {:src url}]]]
            [:button.modal-close.is-large {:id key
                                           :on-click #(modal-click-helper % "none")}]]]]]))])
@@ -94,7 +90,7 @@
   (let [partitioned-data (partition 4 (:img-data @state))]
     [:div
      (for [row-data partitioned-data]
-       ^{:key (str/join "-" (first (first row-data)))} [img-component row-data])]))
+       ^{:key (str/join "-" (map (fn [e] (str (first e))) row-data))} [img-component row-data])]))
 
 ;; Root
 (defn snapshot-component
@@ -109,10 +105,8 @@
     ;    [:i.fas.fa-search]]]]]
    [interactive-categories (:categories @state)]
    [current-category-title-component]
-   ;; TODO: Remove this and switch to a different api
    [:div.section
-    (for [i (range 3)]
-      ^{:key i} [build-partition])]])
+    [build-partition]]])
 
 (defn ^:export main
   []
