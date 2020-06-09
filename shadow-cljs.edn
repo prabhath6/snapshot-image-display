@@ -1,0 +1,26 @@
+{:source-paths
+               ["src/dev"
+                "src/main"
+                "src/test"]
+
+ :dependencies
+               [[binaryage/devtools "0.9.10"]
+                [reagent "0.10.0"]
+                [adzerk/env "0.4.0"]]
+
+ :nrepl        {:port 3333}
+
+ :builds
+               {:app {:target :browser
+                      :output-dir "public/js"
+                      :asset-path "/js"
+
+                      :modules
+                      {:main
+                       {:entries [snapshot-image-display.core]}}
+
+                      :devtools
+                      {:after-load  snapshot-image-display.core/main
+                       :http-root   "public"
+                       :http-port   3000}}}
+ }

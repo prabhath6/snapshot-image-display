@@ -1,0 +1,19 @@
+{
+  "name": "snapshot-image-display",
+  "version": "0.0.1",
+  "private": true,
+  "devDependencies": {
+    "shadow-cljs": "2.9.10"
+  },
+  "dependencies": {
+    "create-react-class": "15.6.3",
+    "react": "16.13.0",
+    "react-dom": "16.13.0"
+  },
+  "scripts": {
+    "dev": "shadow-cljs watch app",
+    "release": "shadow-cljs release app",
+    "clean": "rm -rf target && rm -rf public/js",
+    "clean-win": "rmdir /s /q public/js & rmdir /s /q target"
+  }
+}
