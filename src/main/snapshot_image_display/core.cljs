@@ -5,7 +5,7 @@
             [adzerk.env :as env]))
 
 ;; state
-(defonce state (r/atom {:search-term ""
+(defonce state (r/atom {:search-term nil
                         :current-category "Mountain"
                         :categories ["Mountain" "Beach" "Bird" "Cats"]
                         :api-response {}
@@ -16,7 +16,10 @@
 ;; API stuff
 (defn build-img-data []
   (let [results (:hits (:api-response @state))
-        img-data (into {} (map (fn [e] [(:id e) (:largeImageURL e)]) results))]
+        img-data (->>
+                   results
+                   (map (fn [e] [(:id e) (:largeImageURL e)]))
+                   (into {}))]
     (swap! state assoc :img-data img-data)))
 
 (defn get-api-response [search-term]
@@ -35,9 +38,11 @@
                            :on-key-down (fn [e]
                                           (let [key-code (.. e -keyCode)]
                                             (if (= 13 key-code)
-                                              (do
-                                                (swap! state assoc :search-term (str/trim (.. e -target -value)))
-                                                (prn (:search-term @state))))))}])
+                                              (let [search-term (str/trim (.. e -target -value))]
+                                                (do
+                                                  (swap! state assoc :search-term search-term)
+                                                  (swap! state assoc :current-category search-term)
+                                                  (get-api-response search-term))))))}])
 
 (defn interactive-categories-on-click-handler [e]
   (swap! state assoc :current-category (.. e -target -value)))
@@ -97,12 +102,12 @@
   [name]
   [:div.container.has-text-centered
    [:h1.title name]
-    ;[:div.columns.is-mobile
-    ; [:div.column.is-half.is-offset-one-quarter
-    ;  [:div.control.has-icons-right
-    ;   [snapshot-search-component]
-    ;   [:span.icon.is-medium.is-right
-    ;    [:i.fas.fa-search]]]]]
+    [:div.columns.is-mobile
+     [:div.column.is-half.is-offset-one-quarter
+      [:div.control.has-icons-right
+       [snapshot-search-component]
+       [:span.icon.is-medium.is-right
+        [:i.fas.fa-search]]]]]
    [interactive-categories (:categories @state)]
    [current-category-title-component]
    [:div.section
