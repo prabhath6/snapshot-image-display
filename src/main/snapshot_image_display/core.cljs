@@ -97,6 +97,14 @@
      (for [row-data partitioned-data]
        ^{:key (str/join "-" (map (fn [e] (str (first e))) row-data))} [img-component row-data])]))
 
+(defn pixbay-footer []
+  [:footer.footer
+   [:div.content.has-text-centered
+    [:p
+     [:a {:href "https://pixabay.com/"}
+      [:img {:src "https://pixabay.com/static/img/public/leaderboard_a.png"
+             :alt "Pixabay"}]]]]])
+
 ;; Root
 (defn snapshot-component
   [name]
@@ -111,7 +119,8 @@
    [interactive-categories (:categories @state)]
    [current-category-title-component]
    [:div.section
-    [build-partition]]])
+    [build-partition]]
+   [pixbay-footer]])
 
 (defn ^:export main
   []
